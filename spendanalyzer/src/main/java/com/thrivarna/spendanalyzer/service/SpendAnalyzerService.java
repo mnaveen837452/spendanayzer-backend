@@ -141,4 +141,10 @@ public class SpendAnalyzerService {
         System.out.println("strStartDate date ==>"+ strStartDate);
         return spendAnalyzerRepository.findSpendSummaryByCategoryAndDateRange(startDate, endDate);
     }
+
+    public List<SpendSummaryDTO> getSpendSummaryByDateRange2(String strStartDate, String strEndDate) {
+        LocalDate startDate = DateUtils.stringToLocalDate(strStartDate);
+        LocalDate endDate = DateUtils.stringToLocalDate(strEndDate);
+        return spendAnalyzerRepository.findSpendSummaryByDateRange(startDate, endDate);
+    }
 }
