@@ -127,6 +127,7 @@ public class SpendAnalyzerService {
         return spendAnalyzerRepository.findSpendSummaryByDateRange(startDate, endDate);
     }
 
+
     /**
      * Retrieves spend details (category and sum of amount) for the given date range.
      * @param startDate the start date of the range.
