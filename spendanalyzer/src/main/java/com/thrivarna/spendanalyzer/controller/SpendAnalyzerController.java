@@ -120,5 +120,10 @@ public class SpendAnalyzerController {
                                                                        @RequestParam String endDate) {
         return spendAnalyzerService.getSpendSummaryByCategoryAndDateRange(startDate, endDate);
     }
+
+    public List<SpendCategorySummaryDTO> getCategorySummaryByDateRange2(@RequestParam String startDate,
+                                                                       @RequestParam String endDate) {
+        return spendAnalyzerService.getSpendSummaryByCategoryAndDateRange(startDate, endDate);
+    }
 }
 
