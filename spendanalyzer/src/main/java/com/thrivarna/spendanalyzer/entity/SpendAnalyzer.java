@@ -28,5 +28,8 @@ public class SpendAnalyzer {
 
 
     private String description;
+
+    @Lob
+    private byte[] fileData;
 }
 

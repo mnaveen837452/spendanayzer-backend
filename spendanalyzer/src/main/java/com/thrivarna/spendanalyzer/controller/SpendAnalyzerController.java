@@ -14,8 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
+import java.io.IOException;
 import java.util.List;
 
 @CrossOrigin("*")
@@ -44,8 +45,10 @@ public class SpendAnalyzerController {
             @ApiResponse(responseCode = "201", description = "Successfully created", content = @Content(schema = @Schema(implementation = SpendAnalyzerDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
-    public ResponseEntity<SpendAnalyzerDTO> createSpendAnalyzer(@RequestBody SpendAnalyzerDTO spendAnalyzerDTO) {
-        SpendAnalyzerDTO createdSpendAnalyzer = spendAnalyzerService.createSpendAnalyzer(spendAnalyzerDTO);
+    public ResponseEntity<SpendAnalyzerDTO> createSpendAnalyzer(
+            @RequestPart("spendDetails") SpendAnalyzerDTO spendAnalyzerDTO,
+            @RequestPart("file") MultipartFile file) throws IOException {
+        SpendAnalyzerDTO createdSpendAnalyzer = spendAnalyzerService.createSpendAnalyzer(spendAnalyzerDTO, file);
         return new ResponseEntity<>(createdSpendAnalyzer, HttpStatus.CREATED);
     }
 
@@ -121,9 +124,16 @@ public class SpendAnalyzerController {
         return spendAnalyzerService.getSpendSummaryByCategoryAndDateRange(startDate, endDate);
     }
 
-    public List<SpendCategorySummaryDTO> getCategorySummaryByDateRange2(@RequestParam String startDate,
-                                                                       @RequestParam String endDate) {
-        return spendAnalyzerService.getSpendSummaryByCategoryAndDateRange(startDate, endDate);
+    @PostMapping("/spend-details")
+    public ResponseEntity<SpendAnalyzerDTO> uploadSpendDetails(
+            @RequestPart("spendDetails") SpendAnalyzerDTO spendDetailsDTO,
+            @RequestPart("file") MultipartFile file) {
+        try {
+            SpendAnalyzerDTO savedSpendDetails = spendAnalyzerService.saveSpendDetails(spendDetailsDTO, file);
+            return new ResponseEntity<>(savedSpendDetails, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
 

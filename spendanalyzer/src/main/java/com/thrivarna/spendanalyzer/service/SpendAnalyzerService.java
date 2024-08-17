@@ -12,9 +12,10 @@ import com.thrivarna.spendanalyzer.util.DateUtils;
 import com.thrivarna.spendanalyzer.util.Utility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,7 @@ public class SpendAnalyzerService {
     }
 
 
-    public SpendAnalyzerDTO createSpendAnalyzer(SpendAnalyzerDTO spendAnalyzerDTO) {
+    public SpendAnalyzerDTO createSpendAnalyzer(SpendAnalyzerDTO spendAnalyzerDTO, MultipartFile file) throws IOException {
         SpendAnalyzer spendAnalyzer = new SpendAnalyzer();
         spendAnalyzer.setName(spendAnalyzerDTO.getName());
         spendAnalyzer.setAmount(spendAnalyzerDTO.getAmount());
@@ -52,6 +53,9 @@ public class SpendAnalyzerService {
             Category category = categoryRepository.findById(spendAnalyzerDTO.getCategory().getId())
                     .orElseThrow(() -> new RuntimeException("Category not found"));
             spendAnalyzer.setCategory(category);
+        }
+        if (file != null && !file.isEmpty()) {
+            spendAnalyzer.setFileData(file.getBytes());
         }
 
         SpendAnalyzer savedSpendAnalyzer = spendAnalyzerRepository.save(spendAnalyzer);
@@ -102,7 +106,8 @@ public class SpendAnalyzerService {
         spendAnalyzerDTO.setName(spendAnalyzer.getName());
         spendAnalyzerDTO.setAmount(spendAnalyzer.getAmount());
         spendAnalyzerDTO.setDescription(spendAnalyzer.getDescription());
-        spendAnalyzerDTO.setDate(DateUtils.localDateToString(spendAnalyzer.getDate(), "dd-MM-yyyy"));
+        if(spendAnalyzer.getDate()!=null)
+            spendAnalyzerDTO.setDate(DateUtils.localDateToString(spendAnalyzer.getDate(), "dd-MM-yyyy"));
 
         if (spendAnalyzer.getCategory() != null) {
             CategoryDTO categoryDTO = new CategoryDTO();
@@ -111,6 +116,8 @@ public class SpendAnalyzerService {
             categoryDTO.setDescription(spendAnalyzer.getCategory().getDescription());
             spendAnalyzerDTO.setCategory(categoryDTO);
         }
+        if(spendAnalyzer.getFileData() != null)
+            spendAnalyzerDTO.setImage(spendAnalyzer.getFileData());
 
         return spendAnalyzerDTO;
     }
@@ -139,5 +146,27 @@ public class SpendAnalyzerService {
         System.out.println("start date ==>"+ strEndDate);
         System.out.println("strStartDate date ==>"+ strStartDate);
         return spendAnalyzerRepository.findSpendSummaryByCategoryAndDateRange(startDate, endDate);
+    }
+
+    public SpendAnalyzerDTO saveSpendDetails(SpendAnalyzerDTO spendDetailsDTO, MultipartFile file) throws IOException {
+        Category category = categoryRepository.findById(spendDetailsDTO.getCategory().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid category ID"));
+
+        SpendAnalyzer spendDetails = new SpendAnalyzer();
+        spendDetails.setName(spendDetailsDTO.getName());
+        spendDetails.setAmount(spendDetailsDTO.getAmount());
+        spendDetails.setDescription(spendDetailsDTO.getDescription());
+        spendDetails.setCategory(category);
+
+        // Handle the file (e.g., save it to a directory or database)
+        // Example: save file to the file system
+        /*String filePath = "uploads/" + file.getOriginalFilename();
+        java.nio.file.Files.write(java.nio.file.Paths.get(filePath), file.getBytes());*/
+        // Store file data in the database
+        if (file != null && !file.isEmpty()) {
+            spendDetails.setFileData(file.getBytes());
+        }
+
+        return convertToDTO(spendAnalyzerRepository.save(spendDetails));
     }
 }

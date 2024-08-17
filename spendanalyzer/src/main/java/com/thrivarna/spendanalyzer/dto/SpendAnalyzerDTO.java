@@ -15,5 +15,6 @@ public class SpendAnalyzerDTO {
     private double amount;
     private CategoryDTO category;
     private String description;
+    private byte[] image;
 }
 
